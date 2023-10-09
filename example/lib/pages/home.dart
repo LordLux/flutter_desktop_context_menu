@@ -1,8 +1,12 @@
-import 'package:contextual_menu/contextual_menu.dart';
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart' hide MenuItem;
+import 'package:flutter/material.dart';
+
 import 'package:preference_list/preference_list.dart';
+
+import 'package:flutter_desktop_context_menu/flutter_desktop_context_menu.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -61,18 +65,28 @@ class _HomePageState extends State<HomePage> {
         MenuItem.separator(),
         MenuItem(
           label: 'Cut',
+          toolTip: 'Cut the text',
+          shortcutKey: 'x',
+          shortcutModifiers: ShortcutModifiers(
+              control: Platform.isWindows, meta: Platform.isMacOS),
           onClick: _onClick,
           onHighlight: _onHighlight,
           onLoseHighlight: _onLoseHighlight,
         ),
         MenuItem(
           label: 'Copy',
+          shortcutKey: 'c',
+          shortcutModifiers: ShortcutModifiers(
+              control: Platform.isWindows, meta: Platform.isMacOS),
           onClick: _onClick,
           onHighlight: _onHighlight,
           onLoseHighlight: _onLoseHighlight,
         ),
         MenuItem(
           label: 'Paste',
+          shortcutKey: 'v',
+          shortcutModifiers: ShortcutModifiers(
+              control: Platform.isWindows, meta: Platform.isMacOS),
           onClick: _onClick,
           onHighlight: _onHighlight,
           onLoseHighlight: _onLoseHighlight,
@@ -220,7 +234,7 @@ class _HomePageState extends State<HomePage> {
         ),
       ],
     );
-    popUpContextualMenu(
+    popUpContextMenu(
       _menu!,
       position: _position,
       placement: _placement,
