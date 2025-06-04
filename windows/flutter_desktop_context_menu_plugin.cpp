@@ -6,18 +6,73 @@
 #include <flutter/method_channel.h>
 #include <flutter/plugin_registrar_windows.h>
 #include <flutter/standard_method_codec.h>
+#include <dwmapi.h>
+#pragma comment(lib, "dwmapi.lib")
 
 #include <codecvt>
 #include <map>
 #include <memory>
 #include <sstream>
 
+#ifndef DWMWA_USE_IMMERSIVE_DARK_MODE
+#define DWMWA_USE_IMMERSIVE_DARK_MODE 20
+#endif
+
 using flutter::EncodableList;
 using flutter::EncodableMap;
 using flutter::EncodableValue;
 
-namespace {
+typedef enum _PREFERRED_APP_MODE {
+    PreferredAppModeDefault,
+    PreferredAppModeAllowDark,
+    PreferredAppModeForceDark,
+    PreferredAppModeForceLight,
+    PreferredAppModeMax
+} PREFERRED_APP_MODE;
 
+typedef PREFERRED_APP_MODE(WINAPI* PFN_SET_PREFERRED_APP_MODE)(PREFERRED_APP_MODE appMode);
+typedef void(WINAPI* PFN_ALLOW_DARK_MODE_FOR_WINDOW)(HWND hwnd, BOOL allow);
+typedef BOOL(WINAPI* PFN_SHOULD_APPS_USE_DARK_MODE)();
+
+PFN_SET_PREFERRED_APP_MODE SetPreferredAppMode = nullptr;
+PFN_ALLOW_DARK_MODE_FOR_WINDOW AllowDarkModeForWindow = nullptr;
+PFN_SHOULD_APPS_USE_DARK_MODE ShouldAppsUseDarkMode = nullptr;
+
+void InitDarkMode() {
+  HMODULE hUxtheme = LoadLibraryExW(L"uxtheme.dll", nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32);
+
+  if (hUxtheme) {
+    // Ordinal 135 is SetPreferredAppMode in Win10 1903+
+    SetPreferredAppMode = reinterpret_cast<PFN_SET_PREFERRED_APP_MODE>(
+        GetProcAddress(hUxtheme, MAKEINTRESOURCEA(135)));
+
+    // Ordinal 133 is AllowDarkModeForWindow
+    AllowDarkModeForWindow = reinterpret_cast<PFN_ALLOW_DARK_MODE_FOR_WINDOW>(
+        GetProcAddress(hUxtheme, MAKEINTRESOURCEA(133)));
+
+    // Ordinal 132 is ShouldAppsUseDarkMode
+    ShouldAppsUseDarkMode = reinterpret_cast<PFN_SHOULD_APPS_USE_DARK_MODE>(
+        GetProcAddress(hUxtheme, MAKEINTRESOURCEA(132)));
+
+    // Force dark mode for the application
+    if (SetPreferredAppMode) SetPreferredAppMode(PreferredAppModeForceDark);
+  }
+}
+
+void EnableDarkModeForContextMenu(HWND hwnd) {
+  // Enable dark mode for the window
+  if (AllowDarkModeForWindow) AllowDarkModeForWindow(hwnd, TRUE);
+  
+
+  // For Windows 10 1809+
+  BOOL darkModeEnabled = TRUE;
+  DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &darkModeEnabled, sizeof(darkModeEnabled));
+
+  // Update window to apply changes
+  SetWindowPos(hwnd, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+}
+
+namespace {
 const EncodableValue* ValueOrNull(const EncodableMap& map, const char* key) {
   auto it = map.find(EncodableValue(key));
   if (it == map.end()) {
@@ -86,6 +141,8 @@ void FlutterDesktopContextMenuPlugin::RegisterWithRegistrar(
 FlutterDesktopContextMenuPlugin::FlutterDesktopContextMenuPlugin(
     flutter::PluginRegistrarWindows* registrar)
     : registrar(registrar) {
+  InitDarkMode();
+  
   window_proc_id = registrar->RegisterTopLevelWindowProcDelegate(
       [this](HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam) {
         return HandleWindowProc(hwnd, message, wparam, lparam);
@@ -202,6 +259,7 @@ void FlutterDesktopContextMenuPlugin::PopUp(
     const flutter::MethodCall<EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
   HWND hWnd = GetMainWindow();
+  EnableDarkModeForContextMenu(hWnd);
 
   const EncodableMap& args = std::get<EncodableMap>(*method_call.arguments());
 
