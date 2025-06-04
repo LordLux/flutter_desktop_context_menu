@@ -12,11 +12,9 @@ class _FlutterDesktopContextMenu with MenuBehavior {
   }
 
   /// The shared instance of [_FlutterDesktopContextMenu].
-  static final _FlutterDesktopContextMenu instance =
-      _FlutterDesktopContextMenu._();
+  static final _FlutterDesktopContextMenu instance = _FlutterDesktopContextMenu._();
 
-  final MethodChannel _channel =
-      const MethodChannel('flutter_desktop_context_menu');
+  final MethodChannel _channel = const MethodChannel('flutter_desktop_context_menu');
 
   Menu? _menu;
   int? _lastHighlighted;
@@ -33,8 +31,7 @@ class _FlutterDesktopContextMenu with MenuBehavior {
       case 'onMenuItemHighlight':
         final id = call.arguments['id'] as int?;
         if (_lastHighlighted != null && _lastHighlighted != id) {
-          final previouslyHighlighted =
-              _menu?.getMenuItemById(_lastHighlighted!);
+          final previouslyHighlighted = _menu?.getMenuItemById(_lastHighlighted!);
           previouslyHighlighted?.onLoseHighlight?.call(previouslyHighlighted);
         }
         _lastHighlighted = id;
@@ -58,8 +55,7 @@ class _FlutterDesktopContextMenu with MenuBehavior {
   }) async {
     _menu = menu;
     final Map<String, dynamic> arguments = {
-      'devicePixelRatio':
-          PlatformDispatcher.instance.views.first.devicePixelRatio,
+      'devicePixelRatio': PlatformDispatcher.instance.views.first.devicePixelRatio,
       'menu': menu.toJson(),
       'position': position != null
           ? {

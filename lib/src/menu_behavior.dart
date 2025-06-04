@@ -3,7 +3,7 @@ import 'dart:ui';
 import 'menu.dart';
 import 'placement.dart';
 
-abstract class MenuBehavior {
+mixin MenuBehavior {
   Future<void> popUp(
     Menu menu, {
     Offset? position,
