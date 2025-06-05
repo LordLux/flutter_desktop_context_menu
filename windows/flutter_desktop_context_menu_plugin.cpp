@@ -314,10 +314,17 @@ void FlutterDesktopContextMenuPlugin::_CreateMenu(
           
           MENUITEMINFOW mii = {0};
           mii.cbSize = sizeof(MENUITEMINFOW);
-          mii.fMask = MIIM_STRING | MIIM_ID | MIIM_BITMAP | MIIM_STATE;
+          
+          if (type.compare("submenu") == 0) {
+            mii.fMask = MIIM_STRING | MIIM_BITMAP | MIIM_STATE | MIIM_SUBMENU;
+            mii.hSubMenu = reinterpret_cast<HMENU>(item_id); // The submenu handle
+          } else {
+            mii.fMask = MIIM_STRING | MIIM_ID | MIIM_BITMAP | MIIM_STATE;
+            mii.wID = static_cast<UINT>(item_id);
+          }
+          
           mii.fType = MFT_STRING;
           mii.fState = (disabled ? MFS_GRAYED : MFS_ENABLED) | (checked && *checked ? MFS_CHECKED : 0);
-          mii.wID = static_cast<UINT>(item_id);
           mii.dwTypeData = const_cast<LPWSTR>(w_label.c_str());
           mii.hbmpItem = hBitmap;
           InsertMenuItemW(menu, GetMenuItemCount(menu), TRUE, &mii);

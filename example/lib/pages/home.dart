@@ -97,6 +97,7 @@ class _HomePageState extends State<HomePage> {
         MenuItem.submenu(
           label: 'Share',
           onClick: _onClick,
+          disabled: true,
           icon: r"C:\Users\LordLux\Downloads\power.ico",
           onHighlight: _onHighlight,
           onLoseHighlight: _onLoseHighlight,
