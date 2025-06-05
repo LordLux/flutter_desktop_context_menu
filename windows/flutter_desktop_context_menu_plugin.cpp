@@ -254,9 +254,21 @@ void FlutterDesktopContextMenuPlugin::_CreateMenu(
     // Icon path
     auto* icon_path_value = ValueOrNull(item_map, "icon");
     std::string icon_path = icon_path_value ? std::get<std::string>(*icon_path_value) : "";
+    // Checked icon path - use for checkbox items when checked
+    auto* checked_icon_path_value = ValueOrNull(item_map, "checkedIcon");
+    std::string checked_icon_path = checked_icon_path_value ? std::get<std::string>(*checked_icon_path_value) : "";
+    
+    // Use checked icon if this is a checkbox item, it's checked, and a checked icon is providedif (type.compare("checkbox") == 0 && 
+    if (type.compare("checkbox") == 0 && 
+      checked != nullptr && 
+      *checked == true && 
+      !checked_icon_path.empty()
+    ) {
+      icon_path = checked_icon_path;
+    }
 
     UINT_PTR item_id = id;
-    UINT uFlags = MF_STRING;
+    UINT uFlags = MF_STRING; //TODO add support for MFS_DEFAULT (Bold text, only one for a single menu, ex. "Open" in a file context menu)
 
     if (disabled) uFlags |= MF_GRAYED;
 
@@ -324,7 +336,7 @@ void FlutterDesktopContextMenuPlugin::_CreateMenu(
           }
           
           mii.fType = MFT_STRING;
-          mii.fState = (disabled ? MFS_GRAYED : MFS_ENABLED) | (checked && *checked ? MFS_CHECKED : 0);
+          mii.fState = uFlags;
           mii.dwTypeData = const_cast<LPWSTR>(w_label.c_str());
           mii.hbmpItem = hBitmap;
           InsertMenuItemW(menu, GetMenuItemCount(menu), TRUE, &mii);

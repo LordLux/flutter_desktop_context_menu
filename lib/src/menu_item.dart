@@ -30,6 +30,7 @@ class MenuItem {
   String? sublabel;
   String? toolTip;
   String? icon;
+  String? checkedIcon;
   bool? checked;
   bool disabled;
   Menu? submenu;
@@ -65,6 +66,7 @@ class MenuItem {
     this.sublabel,
     this.toolTip,
     this.icon,
+    this.checkedIcon,
     required this.checked,
     this.disabled = false,
     this.shortcutKey,
@@ -101,6 +103,7 @@ class MenuItem {
       'toolTip': toolTip,
       'icon': icon,
       'checked': checked,
+      'checkedIcon': checkedIcon,
       'disabled': disabled,
       'shortcutKey': shortcutKey,
       'shortcutModifiers': shortcutModifiers?.toList(),

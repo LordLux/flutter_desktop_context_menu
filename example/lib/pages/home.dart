@@ -54,13 +54,11 @@ class _HomePageState extends State<HomePage> {
           label: 'Look Up "LeanFlutter"',
           onClick: _onClick,
           onHighlight: _onHighlight,
-          icon: r"C:\Users\LordLux\Downloads\power.ico",
           onLoseHighlight: _onLoseHighlight,
         ),
         MenuItem(
           label: 'Search with Google',
           onClick: _onClick,
-          icon: r"C:\Users\LordLux\Downloads\power.ico",
           onHighlight: _onHighlight,
           onLoseHighlight: _onLoseHighlight,
         ),
@@ -68,7 +66,6 @@ class _HomePageState extends State<HomePage> {
         MenuItem(
           label: 'Cut',
           toolTip: 'Cut the text',
-          icon: r"C:\Users\LordLux\Downloads\power.ico",
           shortcutKey: 'x',
           shortcutModifiers: ShortcutModifiers(control: Platform.isWindows, meta: Platform.isMacOS),
           onClick: _onClick,
@@ -78,7 +75,6 @@ class _HomePageState extends State<HomePage> {
         MenuItem(
           label: 'Copy',
           shortcutKey: 'c',
-          icon: r"C:\Users\LordLux\Downloads\power.ico",
           shortcutModifiers: ShortcutModifiers(control: Platform.isWindows, meta: Platform.isMacOS),
           onClick: _onClick,
           onHighlight: _onHighlight,
@@ -87,7 +83,6 @@ class _HomePageState extends State<HomePage> {
         MenuItem(
           label: 'Paste',
           shortcutKey: 'v',
-          icon: r"C:\Users\LordLux\Downloads\power.ico",
           shortcutModifiers: ShortcutModifiers(control: Platform.isWindows, meta: Platform.isMacOS),
           onClick: _onClick,
           onHighlight: _onHighlight,
@@ -97,8 +92,6 @@ class _HomePageState extends State<HomePage> {
         MenuItem.submenu(
           label: 'Share',
           onClick: _onClick,
-          disabled: true,
-          icon: r"C:\Users\LordLux\Downloads\power.ico",
           onHighlight: _onHighlight,
           onLoseHighlight: _onLoseHighlight,
           submenu: Menu(
@@ -106,21 +99,18 @@ class _HomePageState extends State<HomePage> {
               MenuItem(
                 label: 'Item 1',
                 onClick: _onClick,
-                icon: r"C:\Users\LordLux\Downloads\power.ico",
                 onHighlight: _onHighlight,
                 onLoseHighlight: _onLoseHighlight,
               ),
               MenuItem(
                 label: 'Item 2',
                 onClick: _onClick,
-                icon: r"C:\Users\LordLux\Downloads\power.ico",
                 onHighlight: _onHighlight,
                 onLoseHighlight: _onLoseHighlight,
               ),
               MenuItem.checkbox(
                 label: 'Centered Layout',
                 onClick: _onClick,
-                icon: r"C:\Users\LordLux\Downloads\power.ico",
                 onHighlight: _onHighlight,
                 onLoseHighlight: _onLoseHighlight,
                 checked: false,
@@ -129,7 +119,6 @@ class _HomePageState extends State<HomePage> {
               MenuItem.checkbox(
                 label: 'Show Primary Side Bar',
                 onClick: _onClick,
-                icon: r"C:\Users\LordLux\Downloads\power.ico",
                 onHighlight: _onHighlight,
                 onLoseHighlight: _onLoseHighlight,
                 checked: true,
@@ -137,7 +126,6 @@ class _HomePageState extends State<HomePage> {
               MenuItem.checkbox(
                 label: 'Show Secondary Side Bar',
                 onClick: _onClick,
-                icon: r"C:\Users\LordLux\Downloads\power.ico",
                 onHighlight: _onHighlight,
                 onLoseHighlight: _onLoseHighlight,
                 checked: true,
@@ -145,7 +133,6 @@ class _HomePageState extends State<HomePage> {
               MenuItem.checkbox(
                 label: 'Show Status Bar',
                 onClick: _onClick,
-                icon: r"C:\Users\LordLux\Downloads\power.ico",
                 onHighlight: _onHighlight,
                 onLoseHighlight: _onLoseHighlight,
                 checked: true,
@@ -154,6 +141,7 @@ class _HomePageState extends State<HomePage> {
                 label: 'Show Activity Bar',
                 onClick: _onClick,
                 icon: r"C:\Users\LordLux\Downloads\power.ico",
+                checkedIcon: r"C:\Users\LordLux\Downloads\watch1.ico",
                 onHighlight: _onHighlight,
                 onLoseHighlight: _onLoseHighlight,
                 checked: true,
@@ -161,7 +149,6 @@ class _HomePageState extends State<HomePage> {
               MenuItem.checkbox(
                 label: 'Show Panel Bar',
                 onClick: _onClick,
-                icon: r"C:\Users\LordLux\Downloads\power.ico",
                 onHighlight: _onHighlight,
                 onLoseHighlight: _onLoseHighlight,
                 checked: false,
@@ -171,7 +158,7 @@ class _HomePageState extends State<HomePage> {
         ),
         MenuItem.separator(),
         MenuItem.submenu(
-          label: 'Submenu senza icona',
+          label: 'Items',
           onClick: _onClick,
           onHighlight: _onHighlight,
           onLoseHighlight: _onLoseHighlight,
@@ -180,7 +167,6 @@ class _HomePageState extends State<HomePage> {
               MenuItem.checkbox(
                 label: 'Item 1',
                 onHighlight: _onHighlight,
-                icon: r"C:\Users\LordLux\Downloads\power.ico",
                 onLoseHighlight: _onLoseHighlight,
                 checked: true,
                 onClick: (menuItem) {
@@ -191,7 +177,6 @@ class _HomePageState extends State<HomePage> {
               MenuItem.checkbox(
                 label: 'Item 2',
                 onHighlight: _onHighlight,
-                icon: r"C:\Users\LordLux\Downloads\power.ico",
                 onLoseHighlight: _onLoseHighlight,
                 checked: false,
                 onClick: (menuItem) {
@@ -205,7 +190,6 @@ class _HomePageState extends State<HomePage> {
                 onClick: _onClick,
                 onHighlight: _onHighlight,
                 onLoseHighlight: _onLoseHighlight,
-                icon: r"C:\Users\LordLux\Downloads\power.ico",
                 checked: false,
               ),
               MenuItem(
@@ -213,24 +197,33 @@ class _HomePageState extends State<HomePage> {
                 onClick: _onClick,
                 onHighlight: _onHighlight,
                 onLoseHighlight: _onLoseHighlight,
-                icon: r"C:\Users\LordLux\Downloads\power.ico",
                 checked: false,
               ),
               MenuItem(
                 label: 'Item 5',
                 onClick: _onClick,
                 onHighlight: _onHighlight,
-                icon: r"C:\Users\LordLux\Downloads\power.ico",
                 onLoseHighlight: _onLoseHighlight,
                 checked: false,
               ),
             ],
           ),
         ),
-        MenuItem.submenu(
-          label: 'Submenu con icona',
-          onClick: _onClick,
+        MenuItem.checkbox(
+          label: 'Checkbox Item',
+          onClick: (menuItem) {
+            menuItem.checked = !(menuItem.checked == true);
+            _onClick(menuItem);
+          },
           icon: r"C:\Users\LordLux\Downloads\power.ico",
+          checkedIcon: r"C:\Users\LordLux\Downloads\watch32.ico",
+          onHighlight: _onHighlight,
+          onLoseHighlight: _onLoseHighlight,
+          checked: false,
+        ),
+        MenuItem.submenu(
+          label: 'Items again',
+          onClick: _onClick,
           onHighlight: _onHighlight,
           onLoseHighlight: _onLoseHighlight,
           submenu: Menu(
@@ -240,14 +233,12 @@ class _HomePageState extends State<HomePage> {
                 onClick: _onClick,
                 onHighlight: _onHighlight,
                 onLoseHighlight: _onLoseHighlight,
-                icon: r"C:\Users\LordLux\Downloads\power.ico",
               ),
               MenuItem(
                 label: 'Item 2',
                 onClick: _onClick,
                 onHighlight: _onHighlight,
                 onLoseHighlight: _onLoseHighlight,
-                icon: r"C:\Users\LordLux\Downloads\power.ico",
               ),
             ],
           ),
