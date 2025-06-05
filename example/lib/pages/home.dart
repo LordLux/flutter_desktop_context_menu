@@ -54,11 +54,13 @@ class _HomePageState extends State<HomePage> {
           label: 'Look Up "LeanFlutter"',
           onClick: _onClick,
           onHighlight: _onHighlight,
+          icon: r"C:\Users\LordLux\Downloads\power.ico",
           onLoseHighlight: _onLoseHighlight,
         ),
         MenuItem(
           label: 'Search with Google',
           onClick: _onClick,
+          icon: r"C:\Users\LordLux\Downloads\power.ico",
           onHighlight: _onHighlight,
           onLoseHighlight: _onLoseHighlight,
         ),
@@ -66,9 +68,9 @@ class _HomePageState extends State<HomePage> {
         MenuItem(
           label: 'Cut',
           toolTip: 'Cut the text',
+          icon: r"C:\Users\LordLux\Downloads\power.ico",
           shortcutKey: 'x',
-          shortcutModifiers: ShortcutModifiers(
-              control: Platform.isWindows, meta: Platform.isMacOS),
+          shortcutModifiers: ShortcutModifiers(control: Platform.isWindows, meta: Platform.isMacOS),
           onClick: _onClick,
           onHighlight: _onHighlight,
           onLoseHighlight: _onLoseHighlight,
@@ -76,8 +78,8 @@ class _HomePageState extends State<HomePage> {
         MenuItem(
           label: 'Copy',
           shortcutKey: 'c',
-          shortcutModifiers: ShortcutModifiers(
-              control: Platform.isWindows, meta: Platform.isMacOS),
+          icon: r"C:\Users\LordLux\Downloads\power.ico",
+          shortcutModifiers: ShortcutModifiers(control: Platform.isWindows, meta: Platform.isMacOS),
           onClick: _onClick,
           onHighlight: _onHighlight,
           onLoseHighlight: _onLoseHighlight,
@@ -85,8 +87,8 @@ class _HomePageState extends State<HomePage> {
         MenuItem(
           label: 'Paste',
           shortcutKey: 'v',
-          shortcutModifiers: ShortcutModifiers(
-              control: Platform.isWindows, meta: Platform.isMacOS),
+          icon: r"C:\Users\LordLux\Downloads\power.ico",
+          shortcutModifiers: ShortcutModifiers(control: Platform.isWindows, meta: Platform.isMacOS),
           onClick: _onClick,
           onHighlight: _onHighlight,
           onLoseHighlight: _onLoseHighlight,
@@ -95,6 +97,7 @@ class _HomePageState extends State<HomePage> {
         MenuItem.submenu(
           label: 'Share',
           onClick: _onClick,
+          icon: r"C:\Users\LordLux\Downloads\power.ico",
           onHighlight: _onHighlight,
           onLoseHighlight: _onLoseHighlight,
           submenu: Menu(
@@ -102,18 +105,21 @@ class _HomePageState extends State<HomePage> {
               MenuItem(
                 label: 'Item 1',
                 onClick: _onClick,
+                icon: r"C:\Users\LordLux\Downloads\power.ico",
                 onHighlight: _onHighlight,
                 onLoseHighlight: _onLoseHighlight,
               ),
               MenuItem(
                 label: 'Item 2',
                 onClick: _onClick,
+                icon: r"C:\Users\LordLux\Downloads\power.ico",
                 onHighlight: _onHighlight,
                 onLoseHighlight: _onLoseHighlight,
               ),
               MenuItem.checkbox(
                 label: 'Centered Layout',
                 onClick: _onClick,
+                icon: r"C:\Users\LordLux\Downloads\power.ico",
                 onHighlight: _onHighlight,
                 onLoseHighlight: _onLoseHighlight,
                 checked: false,
@@ -122,6 +128,7 @@ class _HomePageState extends State<HomePage> {
               MenuItem.checkbox(
                 label: 'Show Primary Side Bar',
                 onClick: _onClick,
+                icon: r"C:\Users\LordLux\Downloads\power.ico",
                 onHighlight: _onHighlight,
                 onLoseHighlight: _onLoseHighlight,
                 checked: true,
@@ -129,6 +136,7 @@ class _HomePageState extends State<HomePage> {
               MenuItem.checkbox(
                 label: 'Show Secondary Side Bar',
                 onClick: _onClick,
+                icon: r"C:\Users\LordLux\Downloads\power.ico",
                 onHighlight: _onHighlight,
                 onLoseHighlight: _onLoseHighlight,
                 checked: true,
@@ -136,6 +144,7 @@ class _HomePageState extends State<HomePage> {
               MenuItem.checkbox(
                 label: 'Show Status Bar',
                 onClick: _onClick,
+                icon: r"C:\Users\LordLux\Downloads\power.ico",
                 onHighlight: _onHighlight,
                 onLoseHighlight: _onLoseHighlight,
                 checked: true,
@@ -143,6 +152,7 @@ class _HomePageState extends State<HomePage> {
               MenuItem.checkbox(
                 label: 'Show Activity Bar',
                 onClick: _onClick,
+                icon: r"C:\Users\LordLux\Downloads\power.ico",
                 onHighlight: _onHighlight,
                 onLoseHighlight: _onLoseHighlight,
                 checked: true,
@@ -150,6 +160,7 @@ class _HomePageState extends State<HomePage> {
               MenuItem.checkbox(
                 label: 'Show Panel Bar',
                 onClick: _onClick,
+                icon: r"C:\Users\LordLux\Downloads\power.ico",
                 onHighlight: _onHighlight,
                 onLoseHighlight: _onLoseHighlight,
                 checked: false,
@@ -159,7 +170,7 @@ class _HomePageState extends State<HomePage> {
         ),
         MenuItem.separator(),
         MenuItem.submenu(
-          label: 'Font',
+          label: 'Submenu senza icona',
           onClick: _onClick,
           onHighlight: _onHighlight,
           onLoseHighlight: _onLoseHighlight,
@@ -168,6 +179,7 @@ class _HomePageState extends State<HomePage> {
               MenuItem.checkbox(
                 label: 'Item 1',
                 onHighlight: _onHighlight,
+                icon: r"C:\Users\LordLux\Downloads\power.ico",
                 onLoseHighlight: _onLoseHighlight,
                 checked: true,
                 onClick: (menuItem) {
@@ -178,6 +190,7 @@ class _HomePageState extends State<HomePage> {
               MenuItem.checkbox(
                 label: 'Item 2',
                 onHighlight: _onHighlight,
+                icon: r"C:\Users\LordLux\Downloads\power.ico",
                 onLoseHighlight: _onLoseHighlight,
                 checked: false,
                 onClick: (menuItem) {
@@ -191,6 +204,7 @@ class _HomePageState extends State<HomePage> {
                 onClick: _onClick,
                 onHighlight: _onHighlight,
                 onLoseHighlight: _onLoseHighlight,
+                icon: r"C:\Users\LordLux\Downloads\power.ico",
                 checked: false,
               ),
               MenuItem(
@@ -198,12 +212,14 @@ class _HomePageState extends State<HomePage> {
                 onClick: _onClick,
                 onHighlight: _onHighlight,
                 onLoseHighlight: _onLoseHighlight,
+                icon: r"C:\Users\LordLux\Downloads\power.ico",
                 checked: false,
               ),
               MenuItem(
                 label: 'Item 5',
                 onClick: _onClick,
                 onHighlight: _onHighlight,
+                icon: r"C:\Users\LordLux\Downloads\power.ico",
                 onLoseHighlight: _onLoseHighlight,
                 checked: false,
               ),
@@ -211,8 +227,9 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         MenuItem.submenu(
-          label: 'Speech',
+          label: 'Submenu con icona',
           onClick: _onClick,
+          icon: r"C:\Users\LordLux\Downloads\power.ico",
           onHighlight: _onHighlight,
           onLoseHighlight: _onLoseHighlight,
           submenu: Menu(
@@ -222,12 +239,14 @@ class _HomePageState extends State<HomePage> {
                 onClick: _onClick,
                 onHighlight: _onHighlight,
                 onLoseHighlight: _onLoseHighlight,
+                icon: r"C:\Users\LordLux\Downloads\power.ico",
               ),
               MenuItem(
                 label: 'Item 2',
                 onClick: _onClick,
                 onHighlight: _onHighlight,
                 onLoseHighlight: _onLoseHighlight,
+                icon: r"C:\Users\LordLux\Downloads\power.ico",
               ),
             ],
           ),
@@ -254,11 +273,9 @@ class _HomePageState extends State<HomePage> {
                   _placement = Placement.values[index];
                   setState(() {});
                 },
-                isSelected:
-                    Placement.values.map((e) => e == _placement).toList(),
+                isSelected: Placement.values.map((e) => e == _placement).toList(),
                 children: <Widget>[
-                  for (var placement in Placement.values)
-                    Text(describeEnum(placement)),
+                  for (var placement in Placement.values) Text(describeEnum(placement)),
                 ],
               ),
               onTap: () {
@@ -291,8 +308,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Listener(
       onPointerDown: (event) {
-        _shouldReact = event.kind == PointerDeviceKind.mouse &&
-            event.buttons == kSecondaryMouseButton;
+        _shouldReact = event.kind == PointerDeviceKind.mouse && event.buttons == kSecondaryMouseButton;
       },
       onPointerUp: (event) {
         if (!_shouldReact) return;

@@ -6,128 +6,86 @@
 #include <flutter/method_channel.h>
 #include <flutter/plugin_registrar_windows.h>
 #include <flutter/standard_method_codec.h>
+
 #include <dwmapi.h>
 #pragma comment(lib, "dwmapi.lib")
 
 #include <gdiplus.h>
 #pragma comment(lib, "gdiplus.lib")
+#include "flutter_desktop_context_menu_plugin_menu.h"
+#include "dark_mode_helper.h"
+#include <windows.h>
+#include <flutter/encodable_value.h>
+#include <string>
 
 #include <codecvt>
 #include <map>
 #include <memory>
 #include <sstream>
 
-#ifndef DWMWA_USE_IMMERSIVE_DARK_MODE
-#define DWMWA_USE_IMMERSIVE_DARK_MODE 20
-#endif
-
 using flutter::EncodableList;
 using flutter::EncodableMap;
 using flutter::EncodableValue;
 using namespace Gdiplus;
 
-typedef enum _PREFERRED_APP_MODE {
-    PreferredAppModeDefault,
-    PreferredAppModeAllowDark,
-    PreferredAppModeForceDark,
-    PreferredAppModeForceLight,
-    PreferredAppModeMax
-} PREFERRED_APP_MODE;
+void LoadImageWithTransparency(const std::wstring& imagePath, HBITMAP& hBitmap) {
+    // Initialize GDI+
+    ULONG_PTR gdiplusToken;
+    GdiplusStartupInput gdiplusStartupInput;
+    GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
 
-typedef PREFERRED_APP_MODE(WINAPI* PFN_SET_PREFERRED_APP_MODE)(PREFERRED_APP_MODE appMode);
-typedef void(WINAPI* PFN_ALLOW_DARK_MODE_FOR_WINDOW)(HWND hwnd, BOOL allow);
-typedef BOOL(WINAPI* PFN_SHOULD_APPS_USE_DARK_MODE)();
+    // Create a GDI+ Bitmap object from the file
+    Bitmap* bitmap = Bitmap::FromFile(imagePath.c_str());
 
-PFN_SET_PREFERRED_APP_MODE SetPreferredAppMode = nullptr;
-PFN_ALLOW_DARK_MODE_FOR_WINDOW AllowDarkModeForWindow = nullptr;
-PFN_SHOULD_APPS_USE_DARK_MODE ShouldAppsUseDarkMode = nullptr;
+    if (bitmap && bitmap->GetLastStatus() == Ok) {
+        // Resize image to a standard small size (e.g., 16x16)
+        UINT newWidth = 20;
+        UINT newHeight = 20;
 
-void InitDarkMode() {
-  HMODULE hUxtheme = LoadLibraryExW(L"uxtheme.dll", nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32);
+        // Create a new bitmap with resized dimensions
+        Bitmap* resizedBitmap = new Bitmap(newWidth, newHeight, PixelFormat32bppARGB);
+        Graphics g(resizedBitmap);
+        g.DrawImage(bitmap, 0, 0, newWidth, newHeight);  // Scale image to new size
 
-  if (hUxtheme) {
-    // Ordinal 135 is SetPreferredAppMode in Win10 1903+
-    SetPreferredAppMode = reinterpret_cast<PFN_SET_PREFERRED_APP_MODE>(
-      GetProcAddress(hUxtheme, MAKEINTRESOURCEA(135))
-    );
+        // Create a compatible device context and HBITMAP
+        HDC hdc = GetDC(NULL);
+        HDC hMemDC = CreateCompatibleDC(hdc);
+        ReleaseDC(NULL, hdc);
 
-    // Ordinal 133 is AllowDarkModeForWindow
-    AllowDarkModeForWindow = reinterpret_cast<PFN_ALLOW_DARK_MODE_FOR_WINDOW>(
-      GetProcAddress(hUxtheme, MAKEINTRESOURCEA(133))
-    );
+        hBitmap = CreateCompatibleBitmap(hdc, newWidth, newHeight);
+        if (hBitmap) {
+            SelectObject(hMemDC, hBitmap);
 
-    // Ordinal 132 is ShouldAppsUseDarkMode
-    ShouldAppsUseDarkMode = reinterpret_cast<PFN_SHOULD_APPS_USE_DARK_MODE>(
-      GetProcAddress(hUxtheme, MAKEINTRESOURCEA(132))
-    );
+            // Draw resized image with transparency to HBITMAP
+            Graphics graphics(hMemDC);
+            graphics.SetSmoothingMode(SmoothingModeAntiAlias);  // Improve quality (if needed)
+            graphics.SetInterpolationMode(InterpolationModeHighQualityBicubic);  // High quality scaling
+            graphics.DrawImage(resizedBitmap, 0, 0);  // Draw with transparency
 
-    // Force dark mode for the application
-    if (SetPreferredAppMode) SetPreferredAppMode(PreferredAppModeForceDark);
-  }
-}
+            // Cleanup
+            delete resizedBitmap;
+            DeleteDC(hMemDC);
+        }
+    }
 
-void EnableDarkModeForContextMenu(HWND hwnd) {
-  // Enable dark mode for the window
-  if (AllowDarkModeForWindow) AllowDarkModeForWindow(hwnd, TRUE);
-  
-
-  // For Windows 10 1809+
-  BOOL darkModeEnabled = TRUE;
-  DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &darkModeEnabled, sizeof(darkModeEnabled));
-
-  // Update window to apply changes
-  SetWindowPos(hwnd, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
-}
-
-HICON LoadIconFromFile(LPCWSTR filePath, int size) {
-    return (HICON)LoadImage(
-        NULL,              // No module per file esterni
-        filePath,          // Percorso del file .ico
-        IMAGE_ICON,        // Tipo di immagine
-        size, size,        // Dimensioni desiderate
-        LR_LOADFROMFILE |  // Carica da file
-        LR_DEFAULTCOLOR    // Usa colori predefiniti
-    );
-}
-
-HBITMAP IconToBitmap(HICON hIcon, int width, int height) {
-    // Ottieni DC dello schermo
-    HDC hScreenDC = GetDC(NULL);
-    HDC hMemDC = CreateCompatibleDC(hScreenDC);
-    
-    // Crea bitmap compatibile
-    HBITMAP hBitmap = CreateCompatibleBitmap(hScreenDC, width, height);
-    HBITMAP hOldBitmap = (HBITMAP)SelectObject(hMemDC, hBitmap);
-    
-    // Riempi con colore background del menu
-    HBRUSH hBrush = CreateSolidBrush(GetSysColor(COLOR_MENU));
-    RECT rect = {0, 0, width, height};
-    FillRect(hMemDC, &rect, hBrush);
-    DeleteObject(hBrush);
-    
-    // Disegna l'icona sulla bitmap
-    DrawIconEx(hMemDC, 0, 0, hIcon, width, height, 0, NULL, DI_NORMAL);
-    
-    // Pulizia
-    SelectObject(hMemDC, hOldBitmap);
-    DeleteDC(hMemDC);
-    ReleaseDC(NULL, hScreenDC);
-    
-    return hBitmap;
+    // Cleanup
+    delete bitmap;
+    GdiplusShutdown(gdiplusToken);
 }
 
 HBITMAP LoadIconFromFile(const std::wstring& iconPath) {
   HBITMAP hBitmap = (HBITMAP)LoadImageW(
       NULL,                      // hInstance - NULL for files
       iconPath.c_str(),          // Image path
-      IMAGE_BITMAP,                // Image type
-      16, 16,                    // Image dimensions
-      LR_LOADFROMFILE | LR_DEFAULTSIZE            // Load from file
+      IMAGE_ICON,                // Image type
+      16, 16,                      // Use actual dimensions
+      LR_LOADFROMFILE            // Load from file
   );
   return hBitmap;
 }
 
-namespace {
+
+namespace flutter_desktop_context_menu {
 
 const EncodableValue* ValueOrNull(const EncodableMap& map, const char* key) {
   auto it = map.find(EncodableValue(key));
@@ -237,7 +195,7 @@ void FlutterDesktopContextMenuPlugin::_CreateMenu(
     // always remove at 0 because they shift every time
     RemoveMenu(menu, 0, MF_BYPOSITION);
   }
-
+  
   // Get map of items
   for (EncodableValue item_value : items) {
     EncodableMap item_map = std::get<EncodableMap>(item_value);
@@ -288,45 +246,31 @@ void FlutterDesktopContextMenuPlugin::_CreateMenu(
       if (!icon_path.empty()) {
         // Convert to wstring for Windows API
         std::wstring w_icon_path = g_converter.from_bytes(icon_path);
-        
-        HICON hIcon = NULL;
-        
-        // Check file extension .ico
-        if (w_icon_path.substr(w_icon_path.find_last_of(L".") + 1) == L"ico") {
-          hIcon = (HICON)LoadImage(
-            NULL,
-            w_icon_path.c_str(),
-            IMAGE_ICON,
-            16, 16,
-            LR_LOADFROMFILE
-          );
-        }
-        
+
         HBITMAP hBitmap = NULL;
         
-        if (hIcon) {
-          hBitmap = IconToBitmap(hIcon, 16, 16);
-          DestroyIcon(hIcon); // Pulisci l'icona originale
+        // Check file extension
+        if (w_icon_path.substr(w_icon_path.find_last_of(L".") + 1) == L"ico") {
+          hBitmap = LoadIconFromFile(w_icon_path);
+        } else if (w_icon_path.substr(w_icon_path.find_last_of(L".") + 1) == L"png") {
+          LoadImageWithTransparency(w_icon_path, hBitmap);
         }
 
         if (hBitmap) {
-          std::wstring w_label = g_converter.from_bytes(label);
-          
           MENUITEMINFOW mii = {0};
           mii.cbSize = sizeof(MENUITEMINFOW);
-          mii.fMask = MIIM_STRING | MIIM_ID | MIIM_BITMAP | MIIM_STATE;
-          mii.fType = MFT_STRING;
-          mii.fState = (disabled ? MFS_GRAYED : MFS_ENABLED) | (checked && *checked ? MFS_CHECKED : 0);
+          mii.fMask = MIIM_STRING | MIIM_ID | MIIM_STATE | MIIM_BITMAP;
           mii.wID = static_cast<UINT>(item_id);
-          mii.dwTypeData = const_cast<LPWSTR>(w_label.c_str());
+          mii.dwTypeData = const_cast<LPWSTR>(g_converter.from_bytes(label).c_str());
+          mii.fState = (disabled ? MFS_GRAYED : MFS_ENABLED) | (checked && *checked ? MFS_CHECKED : 0);
           mii.hbmpItem = hBitmap;
+
+          // Add the menu item with the bitmap (and transparency)
           InsertMenuItemW(menu, GetMenuItemCount(menu), TRUE, &mii);
         } else {
           // Fallback to AppendMenuW if image loading fails
           AppendMenuW(menu, uFlags, item_id, g_converter.from_bytes(label).c_str());
         }
-      } else {
-        AppendMenuW(menu, uFlags, item_id, g_converter.from_bytes(label).c_str());
       }
     }
   }
@@ -380,8 +324,6 @@ void FlutterDesktopContextMenuPlugin::PopUp(
 ) {
   HWND hWnd = GetMainWindow();
   EnableDarkModeForContextMenu(hWnd);
-
-  // SetForegroundWindow(hWnd);
 
   const EncodableMap& args = std::get<EncodableMap>(*method_call.arguments());
 
