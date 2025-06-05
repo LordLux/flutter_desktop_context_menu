@@ -215,8 +215,8 @@ class _HomePageState extends State<HomePage> {
             menuItem.checked = !(menuItem.checked == true);
             _onClick(menuItem);
           },
-          icon: r"C:\Users\LordLux\Downloads\power.ico",
-          checkedIcon: r"C:\Users\LordLux\Downloads\watch32.ico",
+          icon: r"C:\Users\LordLux\Downloads\watch32.ico",
+          checkedIcon: r"C:\Users\LordLux\Downloads\watch16.ico",
           onHighlight: _onHighlight,
           onLoseHighlight: _onLoseHighlight,
           checked: false,

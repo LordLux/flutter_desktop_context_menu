@@ -91,27 +91,48 @@ HICON LoadIconFromFile(LPCWSTR filePath, int size) {
 }
 
 HBITMAP IconToBitmap(HICON hIcon, int width, int height) {
-    // Ottieni DC dello schermo
-    HDC hScreenDC = GetDC(NULL);
-    HDC hMemDC = CreateCompatibleDC(hScreenDC);
+    // Create a 32-bit DIB section with an alpha channel
+    BITMAPINFO bmi;
+    ZeroMemory(&bmi, sizeof(BITMAPINFO));
+    bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+    bmi.bmiHeader.biWidth = width;
+    bmi.bmiHeader.biHeight = -height; // Negative height for top-down DIB
+    bmi.bmiHeader.biPlanes = 1;
+    bmi.bmiHeader.biBitCount = 32;    // 32-bit ARGB format
+    bmi.bmiHeader.biCompression = BI_RGB;
     
-    // Crea bitmap compatibile
-    HBITMAP hBitmap = CreateCompatibleBitmap(hScreenDC, width, height);
+    // Ottieni DC dello schermo
+    VOID* bits = NULL;
+    HDC hdc = GetDC(NULL);
+    HBITMAP hBitmap = CreateDIBSection(hdc, &bmi, DIB_RGB_COLORS, &bits, NULL, 0);
+    HDC hMemDC = CreateCompatibleDC(hdc);
     HBITMAP hOldBitmap = (HBITMAP)SelectObject(hMemDC, hBitmap);
     
-    // Riempi con colore background del menu
-    HBRUSH hBrush = CreateSolidBrush(GetSysColor(COLOR_MENU));
-    RECT rect = {0, 0, width, height};
-    FillRect(hMemDC, &rect, hBrush);
-    DeleteObject(hBrush);
+    // Initialize bitmap with transparent background
+    memset(bits, 0, width * height * 4);
     
     // Disegna l'icona sulla bitmap
     DrawIconEx(hMemDC, 0, 0, hIcon, width, height, 0, NULL, DI_NORMAL);
     
+    // Post-process: ensure alpha channel is properly set
+    DWORD* pBits = (DWORD*)bits;
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            int index = y * width + x;
+            // If pixel has color (not black), ensure it has alpha
+            if ((pBits[index] & 0x00FFFFFF) != 0) {
+                // Set alpha to full if not already set
+                if ((pBits[index] & 0xFF000000) == 0) {
+                    pBits[index] |= 0xFF000000;
+                }
+            }
+        }
+    }
+    
     // Pulizia
     SelectObject(hMemDC, hOldBitmap);
     DeleteDC(hMemDC);
-    ReleaseDC(NULL, hScreenDC);
+    ReleaseDC(NULL, hdc);
     
     return hBitmap;
 }
