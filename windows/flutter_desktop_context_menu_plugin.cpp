@@ -16,6 +16,7 @@
 #include <map>
 #include <memory>
 #include <sstream>
+#include <algorithm>
 
 #ifndef DWMWA_USE_IMMERSIVE_DARK_MODE
 #define DWMWA_USE_IMMERSIVE_DARK_MODE 20
@@ -88,6 +89,50 @@ HICON LoadIconFromFile(LPCWSTR filePath, int size) {
         LR_LOADFROMFILE |  // Carica da file
         LR_DEFAULTCOLOR    // Usa colori predefiniti
     );
+}
+
+HBITMAP LoadPngAsBitmap(LPCWSTR filePath, int size) {
+    // Initialize GDI+
+    Gdiplus::GdiplusStartupInput gdiplusStartupInput;
+    ULONG_PTR gdiplusToken;
+    Gdiplus::Status status = Gdiplus::GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
+    
+    if (status != Gdiplus::Ok) {
+        return NULL;
+    }
+    
+    // Load the PNG image
+    Gdiplus::Bitmap* pBitmap = new Gdiplus::Bitmap(filePath);
+    if (pBitmap->GetLastStatus() != Gdiplus::Ok) {
+        delete pBitmap;
+        Gdiplus::GdiplusShutdown(gdiplusToken);
+        return NULL;
+    }
+    
+    // Create a scaled version if needed
+    Gdiplus::Bitmap* pScaledBitmap = nullptr;
+    if (pBitmap->GetWidth() != static_cast<UINT>(size) || pBitmap->GetHeight() != static_cast<UINT>(size)) {
+        pScaledBitmap = new Gdiplus::Bitmap(size, size, PixelFormat32bppARGB);
+        Gdiplus::Graphics graphics(pScaledBitmap);
+        graphics.SetInterpolationMode(Gdiplus::InterpolationModeHighQualityBicubic);
+        graphics.DrawImage(pBitmap, 0, 0, size, size);
+        delete pBitmap;
+        pBitmap = pScaledBitmap;
+    }
+    
+    // Convert to HBITMAP
+    HBITMAP hBitmap;
+    Gdiplus::Color transparentColor(0, 0, 0, 0);  // Transparent background
+    status = pBitmap->GetHBITMAP(transparentColor, &hBitmap);
+    
+    delete pBitmap;
+    Gdiplus::GdiplusShutdown(gdiplusToken);
+    
+    if (status != Gdiplus::Ok) {
+        return NULL;
+    }
+    
+    return hBitmap;
 }
 
 HBITMAP IconToBitmap(HICON hIcon, int width, int height) {
@@ -323,9 +368,16 @@ void FlutterDesktopContextMenuPlugin::_CreateMenu(
         std::wstring w_icon_path = g_converter.from_bytes(icon_path);
         
         HICON hIcon = NULL;
+        HBITMAP hBitmap = NULL;
         
-        // Check file extension .ico
-        if (w_icon_path.substr(w_icon_path.find_last_of(L".") + 1) == L"ico") {
+        // Get file extension
+        std::wstring extension = w_icon_path.substr(w_icon_path.find_last_of(L".") + 1);
+        
+        // Convert extension to lowercase for comparison
+        std::transform(extension.begin(), extension.end(), extension.begin(), ::towlower);
+        
+        if (extension == L"ico") {
+          // Load ICO file
           hIcon = (HICON)LoadImage(
             NULL,
             w_icon_path.c_str(),
@@ -333,15 +385,16 @@ void FlutterDesktopContextMenuPlugin::_CreateMenu(
             16, 16,
             LR_LOADFROMFILE
           );
+          
+          if (hIcon) {
+            hBitmap = IconToBitmap(hIcon, 16, 16);
+            DestroyIcon(hIcon); // Clean up the original icon
+          }
+        } else if (extension == L"png") {
+          // Load PNG file directly as bitmap
+          hBitmap = LoadPngAsBitmap(w_icon_path.c_str(), 16);
         }
         
-        HBITMAP hBitmap = NULL;
-        
-        if (hIcon) {
-          hBitmap = IconToBitmap(hIcon, 16, 16);
-          DestroyIcon(hIcon); // Pulisci l'icona originale
-        }
-
         if (hBitmap) {
           std::wstring w_label = g_converter.from_bytes(label);
           
@@ -509,3 +562,5 @@ void FlutterDesktopContextMenuPluginRegisterWithRegistrar(FlutterDesktopPluginRe
     flutter::PluginRegistrarManager::GetInstance() ->GetRegistrar<flutter::PluginRegistrarWindows>(registrar)
   );
 }
+
+// TODO support for optional shell context menus (IContextMenu, IContextMenu2, IContextMenu3)

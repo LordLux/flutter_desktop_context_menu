@@ -50,6 +50,35 @@ class _HomePageState extends State<HomePage> {
   void _handleClickPopUp() {
     _menu ??= Menu(
       items: [
+        // Test ICO icon (should work without any modification)
+        MenuItem(
+          label: 'Test ICO Icon',
+          icon: r"C:\Users\LordLux\Pictures\Icons\flutter.ico",
+          onClick: _onClick,
+          onHighlight: _onHighlight,
+          onLoseHighlight: _onLoseHighlight,
+        ),
+        // Test PNG icon (new functionality)
+        MenuItem(
+          label: 'Test PNG Icon',
+          icon: r"C:\Users\LordLux\Downloads\AniList.png",
+          onClick: _onClick,
+          onHighlight: _onHighlight,
+          onLoseHighlight: _onLoseHighlight,
+        ),
+        MenuItem.checkbox(
+          label: 'Checkbox with PNG Icons',
+          onClick: (menuItem) {
+            menuItem.checked = !(menuItem.checked == true);
+            _onClick(menuItem);
+          },
+          icon: r"C:\Users\LordLux\Pictures\Icons\flutter.png",
+          checkedIcon: r"C:\Users\LordLux\Pictures\Icons\flutter.png",
+          onHighlight: _onHighlight,
+          onLoseHighlight: _onLoseHighlight,
+          checked: false,
+        ),
+        MenuItem.separator(),
         MenuItem(
           label: 'Look Up "LeanFlutter"',
           onClick: _onClick,
