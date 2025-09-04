@@ -11,6 +11,27 @@ Available for MacOS, Windows and Linux.
 
 Hotkeys available only for MacOS.
 
+Fork additions:
+Windows supports `.png` (any alpha value) and `.ico` (fully transparent/opaque pixels) files, and currently has the dark mode version hardcoded.
+**To enable white mode (default/light mode) again**, comment out these lines:
+- `InitDarkMode()`:
+  
+    ```cpp
+    // if (SetPreferredAppMode) SetPreferredAppMode(PreferredAppModeForceDark);
+    ```
+  
+- `EnableDarkModeForContextMenu(HWND hwnd)`:
+
+    ```cpp
+    // if (AllowDarkModeForWindow) AllowDarkModeForWindow(hwnd, TRUE);
+
+    // BOOL darkModeEnabled = TRUE;
+    // DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &darkModeEnabled, sizeof(darkModeEnabled));
+    ```
+
+> **Note:**  
+> In the future, I plan to add an API on the Flutter side that will allow toggling between dark and light modes programmatically at runtime, rather than requiring code changes in the C++ source.
+  
 ---
 
 - [flutter_desktop_context_menu](#flutter_desktop_context_menu)
