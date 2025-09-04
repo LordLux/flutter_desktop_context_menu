@@ -13,6 +13,7 @@ Hotkeys available only for MacOS.
 
 Fork additions:
 Windows supports `.png` (any alpha value) and `.ico` (fully transparent/opaque pixels) files, and currently has the dark mode version hardcoded.
+
 **To enable white mode (default/light mode) again**, comment out these lines:
 - `InitDarkMode()`:
   
